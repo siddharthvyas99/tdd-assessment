@@ -9,7 +9,7 @@ class StringCalculator
 
       # Case "1", returns 1
       if numbers_list.split(DELIMITER_LIST).count < 2 && !numbers_list.start_with?("//")
-        return numbers_list.to_i
+        return numbers_list.to_i unless numbers_list.to_i.negative?
       end
 
       # Add Input: “1,5”, Output: 6
@@ -21,6 +21,10 @@ class StringCalculator
       delimiter_list = add_delimiter_to_existing_delimiter_list(custom_delimiter)
 
       numbers = numbers_list.split(delimiter_list).map(&:to_i)
+
+      # Handle case for negative numbers
+      handle_negative_numbers(numbers)
+
       numbers.reduce(0, :+)
     end  
 
@@ -39,6 +43,14 @@ class StringCalculator
       modified_pattern = "#{DELIMITER_LIST.source}|#{escaped_delimiter}"
 
       return  Regexp.new(modified_pattern)
+    end
+
+    def handle_negative_numbers(numbers)
+      negative_numbers = numbers.select(&:negative?)
+
+      unless negative_numbers.empty?
+        raise "Negative numbers not allowed: #{negative_numbers.join(', ')}"
+      end
     end
   end
 end
