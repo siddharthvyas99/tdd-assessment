@@ -1,15 +1,44 @@
+require 'byebug'
 class StringCalculator
   DELIMITER_LIST = /,|\n/
 
-  def self.add(numbers_list)
-    # Nil Case "", nil
-    return 0 if numbers_list.empty? || numbers_list.nil?
+  class << self
+    def add(numbers_list)
+      # Nil Case "", nil
+      return 0 if numbers_list.empty? || numbers_list.nil?
 
-    # Case "1", returns 1
-    return numbers_list.to_i if numbers_list.split(DELIMITER_LIST).count < 2
+      # Case "1", returns 1
+      if numbers_list.split(DELIMITER_LIST).count < 2 && !numbers_list.start_with?("//")
+        return numbers_list.to_i
+      end
 
-    # Add Input: “1,5”, Output: 6
-    numbers = numbers_list.split(DELIMITER_LIST).map(&:to_i)
-    numbers.reduce(0, :+)
-  end  
+      # Add Input: “1,5”, Output: 6
+      if numbers_list.start_with?("//")
+        custom_delimiter, numbers_list = parse_custom_delimiter_with_numbers_list(numbers_list)
+      end
+      custom_delimiter ||= ""
+
+      delimiter_list = add_delimiter_to_existing_delimiter_list(custom_delimiter)
+
+      numbers = numbers_list.split(delimiter_list).map(&:to_i)
+      numbers.reduce(0, :+)
+    end  
+
+    def parse_custom_delimiter_with_numbers_list(input)
+      custom_delimiter, numbers_list = input.match(%r{//(.+)\n((.|\n)*)}).captures
+
+      return custom_delimiter, numbers_list
+    end
+
+    def add_delimiter_to_existing_delimiter_list(new_delimiter)
+      return DELIMITER_LIST if new_delimiter.empty?
+      # Escape the new delimiter to handle special characters
+      escaped_delimiter = Regexp.escape(new_delimiter)
+
+      # Append the new delimiter to the base pattern
+      modified_pattern = "#{DELIMITER_LIST.source}|#{escaped_delimiter}"
+
+      return  Regexp.new(modified_pattern)
+    end
+  end
 end
