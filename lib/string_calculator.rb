@@ -7,7 +7,7 @@ class StringCalculator
     return numbers_list.to_i unless numbers_list.include? ","
 
     # Add Input: “1,5”, Output: 6
-    number1, number2 = numbers_list.split(",")
-    number1 + number2
+    numbers = numbers_list.split(",").map(&:to_i)
+    numbers.reduce(0, :+)
   end  
 end
